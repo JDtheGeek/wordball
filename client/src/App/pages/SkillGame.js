@@ -1,24 +1,32 @@
 import React, { Component } from 'react';
-import { MAX_LETTERS, DEFAULT_TIMER, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../model/config'
+import { DEFAULT_TIMER, CANVAS_WIDTH, CANVAS_HEIGHT, sizeRatio, levelList } from '../../model/config'
 import { Link } from 'react-router-dom';
 import $ from 'jquery';
 import '../../style/skillgame.css'
 import Letter from '../../model/letter'
 import Ball from '../../model/ball'
-import Hole from '../../model/hole'
-import Level from '../../model/level'
-import Game from '../../model/SkillGame'
-import Seed from '../../model/seeds'
-
-
+import Canvas from '../components/Canvas'
+import Layout from '../components/Layout';
 
 class SkillGame extends Component {
   constructor(props) {
     super(props)
     console.log(props)
-    this.seed = new Seed(props.location.levelWord.name)
-    const level = new Level(this.seed, MAX_LETTERS)
-    this.state = { game: new Game(level) }
+    this.state = { game: props.location.playGame, mouseX: 0, mouseY: 0 }
+  }
+
+  _onMouseMove(event) {
+    const canvas = document.getElementById('canvas')
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+
+    this.setState({
+      mouseX: (event.clientX - rect.left) * scaleX,
+      mouseY: (event.clientY - rect.top) * scaleY
+    })
+
+    console.log('state:', this.state)
   }
 
   componentDidMount() {
@@ -26,12 +34,14 @@ class SkillGame extends Component {
     $("#skillscore").hide()
     $("#smartscore").hide()
     const letter = new Letter()
+
     const game = this.state.game
     const canvas = document.getElementById('canvas')
-    const ctx = canvas.getContext('2d')
     const canvas2 = document.getElementById('canvas2')
+    const ctx = canvas.getContext('2d')
     const ctx2 = canvas2.getContext('2d')
     const timeInterval = setInterval(countdown, 1000)
+
     let interval
     $("#score").show()
     let timeLeft
@@ -44,7 +54,6 @@ class SkillGame extends Component {
       timeLeft = 12
     }
 
-    DEFAULT_TIMER
     function countdown() {
       if (timeLeft === 0) {
         game.forceGameOver()
@@ -56,7 +65,7 @@ class SkillGame extends Component {
     }
 
     countdown()
-
+    console.log('game:', game)
     game.letters.forEach(letter => game.balls.push(new Ball(750, 15, letter, canvas)))
     var ball = game.balls[0]
 
@@ -64,25 +73,26 @@ class SkillGame extends Component {
 
     let x2
     let y2
+    const foulLine = (CANVAS_HEIGHT * sizeRatio) * 0.9
 
     function inBounds(y) {
-      if (y < 600) {
-        return false
-      }
+
       return true
     }
 
-    $('#canvas').mousedown(function (canvas) {
-      const offset = $(this).offset()
-      $('#canvas').bind('mousemove', function (e) {
-        x2 = e.pageX - offset.left
-        y2 = e.pageY - offset.top
+    $('#canvas').bind('mousemove', function (e) {
+      x2 = this.state.mouseX
+      y2 = this.state.mouseY
+      $('#canvas').mousedown(function (canvas) {
+        x2 = this.state.mouseX
+        y2 = this.state.mouseY
         $('#canvas').mouseup(function (canvas) {
-          if (inBounds(y2)) { ball.giveVelocity(ball.xPos, ball.yPos, x2, y2) }
+          if (inBounds(y2)) {
+            ball.giveVelocity(ball.xPos, ball.yPos, x2, y2)
+          }
         })
       })
     })
-
 
     function draw() {
       ctx.strokeStyle = 'white'
@@ -105,12 +115,13 @@ class SkillGame extends Component {
         drawBall(ball)
       }
       ctx.fillStyle = 'white'
-      ctx.fillText('Foul Line!', 200, 620)
+      ctx.fillText('Foul Line!', canvas.width, foulLine * 0.9)
       ctx.beginPath();
-      ctx.moveTo(0, 600);
-      ctx.lineTo(500, 600);
+      ctx.moveTo(0, foulLine);
+      ctx.lineTo(CANVAS_HEIGHT * sizeRatio, foulLine);
       ctx.stroke();
     }
+
     function drawHoles(array) {
       array.forEach(function drawHole(item) {
         ctx.fillStyle = 'black'
@@ -119,9 +130,10 @@ class SkillGame extends Component {
         ctx.fill()
         ctx.stroke()
         ctx.fillStyle = 'white'
-        ctx.fillText('x' + item.score, item.xPos - 9, item.yPos+5)
+        ctx.fillText('x' + item.score, item.xPos - 9, item.yPos + 5)
       })
     }
+
     function drawPath(ctx, colour, x1, y1, x2, y2) {
       ctx.strokeStyle = colour
       ctx.beginPath()
@@ -149,6 +161,7 @@ class SkillGame extends Component {
         }
       })
     }
+
     function drawRectangle() {
       const radius = game.balls[0].radius
       var x = game.tLeftCorner[0] + radius
@@ -169,8 +182,8 @@ class SkillGame extends Component {
         ctx.fillText(item, x - 10, game.tRightCorner[1] + 41)
         x += radius * 2
       })
-
     }
+
     function drawBall(ball) {
       ball.position()
       const x = ball.xPos
@@ -184,6 +197,7 @@ class SkillGame extends Component {
       ctx.stroke()
       ctx.fillText(ball.letter, x + 5, y + 30)
     }
+
     function checkGameOver() {
       if (game.isGameOver() === true) {
         clearInterval(interval)
@@ -194,21 +208,42 @@ class SkillGame extends Component {
     }
   }
 
+
   render() {
+
+    function styleWidthMain() {
+      return Math.round(CANVAS_WIDTH * sizeRatio) + "px"
+    }
+
+    function styleWidthHopper() {
+      return Math.round((CANVAS_WIDTH / 8) * sizeRatio) + "px"
+    }
+
+    function styleHeightMain() {
+      return Math.round(CANVAS_HEIGHT * sizeRatio) + "px"
+    }
+
+    function styleHeightHopper() {
+      return Math.round(CANVAS_HEIGHT * sizeRatio) + "px"
+    }
+
     return (
-      <div className='container is-centered' id="skillapp">
-        <span className="details" align="center" ><div id="timer"></div></span> <span className="details"><div id="score"></div></span>
-        <canvas id="canvas" width={CANVAS_WIDTH} height={CANVAS_HEIGHT}></canvas>
-        <canvas id="canvas2" width="50" height={CANVAS_HEIGHT}></canvas>
-
-        <Link to={'./smartgame'}>
-          <button className='button is-primary is-inverted is-outline' id="navnext">
-            next
+      <Layout>
+        <div className='container is-centered' id="skillapp" >
+          <span className="details" align="center" ><div id="timer"></div></span> <span className="details"><div id="score"></div></span>
+          <div onMouseMove={this._onMouseMove.bind(this)} className='container level'>
+            <Canvas CanvasId='canvas' styleWidth={styleWidthMain()} styleHeight={styleHeightMain()} height={CANVAS_HEIGHT} width={CANVAS_WIDTH} />
+            <Canvas CanvasId='canvas2' styleWidth={styleWidthHopper()} styleHeight={styleHeightHopper()} height={CANVAS_HEIGHT} width={CANVAS_WIDTH / 10} />
+          </div>
+          <Link to={'./smartgame'}>
+            <button className='button is-primary is-inverted is-outline' id="navnext">
+              next
         </button>
-        </Link>
-      </div>
-
+          </Link>
+        </div>
+      </Layout>
     );
   }
 }
+
 export default SkillGame;

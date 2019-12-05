@@ -3,7 +3,6 @@ export const DEFAULT_TIMER = 1
 export const CANVAS_WIDTH = 500
 export const CANVAS_HEIGHT = 900
 
-export const sizeRatio = 0.7
 export const letterGroups = {
   EAIONRTLSU: 1,
   DGBCMP: 2,
@@ -13,11 +12,11 @@ export const letterGroups = {
 }
 
 export const LetterColours = {
-  EAIONRTLSU: '#c1dfe8',
-  DGBCMP: '#79c4db',
-  FHVWY: '#32b5de',
-  KJX: '#00ade8',
-  QZ: '#0095d1'
+  EAIONRTLSU: '#FF17D1',
+  DGBCMP: '#17D5FF',
+  FHVWY: '#5DFF17',
+  KJX: '#FF2D2D',
+  QZ: '#FFAC2D'
 }
 
 export const levelList = [

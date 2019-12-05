@@ -1,4 +1,5 @@
 import Ball from './ball.js'
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config'
 
 
 export default class Game {
@@ -11,6 +12,8 @@ export default class Game {
 
     this.counter = 0
     this.word = []
+
+
 
     this.bLeftCorner = [100, 850]
     this.bRightCorner = [400, 850]
@@ -70,7 +73,7 @@ export default class Game {
     }
   }
 
-  isBallinWordHole (ball) {
+  isBallinWordHole(ball) {
     const x = ball.xPos
     const y = ball.yPos
     if (x > 100 && x < 400 && y > 800 && y < 850) {

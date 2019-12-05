@@ -22,7 +22,7 @@ export default class Scores extends Component {
         skillscore: skillscore,
         total: smartscore + skillscore
       }
-      $.post('/api/getLeaderboard', data )
+      $.post('/api/getLeaderboard', data)
     })
   }
 
@@ -40,11 +40,13 @@ export default class Scores extends Component {
             </Link>
             <h2>Final Scores</h2>
             <table className='table is-centered'>
-              <tr>
-                <th>Smart Score</th>
-                <th>Skil Score</th>
-                <th>Total</th>
-              </tr>
+              <thead>
+                <tr>
+                  <th>Smart Score</th>
+                  <th>Skil Score</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
               <tr>
                 <td><span id="smartpoints"></span></td>
                 <td><span id="skillpoints"></span></td>

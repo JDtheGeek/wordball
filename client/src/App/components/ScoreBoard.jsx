@@ -30,8 +30,9 @@ export default function ScoreBoard(props) {
 
   function buildHTML(highScores) {
     if (Array.isArray(highScores)) {
+      highScores.sort((a, b) => Number(a.totalscore) - Number(b.totalscore))
       return highScores.map((highScore, index) => {
-        return <HighScore key={index} className='tbody' playerName={highScore.name} skillScore={highScore.skillscore} smartScore={highScore.smartscore} />
+        return <HighScore key={index} className='tbody' playerName={highScore.name} skillScore={highScore.skillscore} smartScore={highScore.smartscore} totalScore={highScore.totalscore} />
       })
     }
   }
@@ -43,26 +44,26 @@ export default function ScoreBoard(props) {
 
   return (
     <Layout >
-    <center>
-      <div className='level-item has-text-centered'>
-        <div className='table-container is-centered'>
-          <h3 style={titleStyle} className='subtitle is-medium is-white'>{getTitle()}</h3>
-          <table className='table is-outline is-striped is-hoverable is-centered is-fullwidth'>
-            <thead>
-              <tr >
-                {/* <th>Avatar</th> */}
-                <th>Player Name</th>
-                <th className='has-text-right'>Balls Score</th>
-                <th className='has-text-right'>Words Score</th>
-                <th className='has-text-right'>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {buildHTML(getScores)}
-            </tbody>
-          </table>
+      <center>
+        <div className='level-item has-text-centered'>
+          <div className='table-container is-centered'>
+            <h3 style={titleStyle} className='subtitle is-medium is-white'>{getTitle()}</h3>
+            <table className='table is-outline is-striped is-hoverable is-centered is-fullwidth'>
+              <thead>
+                <tr >
+                  {/* <th>Avatar</th> */}
+                  <th>Player Name</th>
+                  <th className='has-text-right'>Balls Score</th>
+                  <th className='has-text-right'>Words Score</th>
+                  <th className='has-text-right'>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {buildHTML(getScores)}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
       </center>
     </Layout>
   )
